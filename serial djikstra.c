@@ -8,6 +8,8 @@
 #include <sys/time.h>
 #include <stdlib.h>
 
+#define N_MAX 9999
+
 int** initializeGraf(int N){
     int **graf = (int **)malloc(N * sizeof(int*));
     for(int i = 0; i < N; i++) graf[i] = (int *)malloc(N * sizeof(int));
@@ -56,6 +58,51 @@ void printMatrix(int ** matrix, int N){
             printf("%d ", matrix[i][j]);
         }
         printf("\n");
+    }
+}
+
+int minDist(int* array, int* included, int N){
+    int minIdx = 0;
+    int min = N_MAX;
+    for (int i = 0; i < N; i++){
+        if (array[i] <= min ){
+            if (included[i] == 0){
+                min = array[i];
+                minIdx = i;
+            }
+        }
+    }
+    return minIdx;
+}
+
+int* djikstra(int** graf, int N, int src){
+
+    int* shortestDist = (int*) malloc( N * sizeof(int));
+    int* included =  (int*) malloc(N * sizeof(int));
+    int minIdx;
+
+    if (shortestDist != NULL && included != NULL){
+        for (int i = 0; i < N; i++ ){
+           shortestDist[i] = N_MAX;
+           included[i] = 0;
+        }
+        
+        shortestDist[src] = 0;
+
+        for (int i = 0; i < N -1; i++){
+            minIdx = minDist(shortestDist, included, N);
+            
+            included[minIdx] = 1;
+
+            for (int j = 0; j < N; j++){
+                if (included[j] == 0 && shortestDist[minIdx] != N_MAX && graf[minIdx][j] != 0){
+                    if (graf[minIdx][j] + shortestDist[minIdx] < shortestDist[j]){
+                        shortestDist[j] = graf[minIdx][j] + shortestDist[minIdx];
+                    }
+                }
+            }
+        }
+        return shortestDist;
     }
 }
 
