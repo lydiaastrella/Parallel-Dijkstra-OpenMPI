@@ -14,12 +14,15 @@ int** initializeGraf(int N){
     int **graf = (int **)malloc(N * sizeof(int*));
     for(int i = 0; i < N; i++) graf[i] = (int *)malloc(N * sizeof(int));
     int r;
+    int pembatas=0;
     srand((unsigned) 13517031);
     for(int i =0; i<N; i++){
-        for (int j=0; j<N; j++){
+        for (int j=0; j<N-pembatas; j++){
             r = rand() % 10;
             graf[i][j] = r;
+            graf[j][i] = r;
         }
+        pembatas +=1;
     }
     return graf;
 }
@@ -102,26 +105,33 @@ int* djikstra(int** graf, int N, int src){
                 }
             }
         }
+        free(included);
         return shortestDist;
     }
 }
 
 int main(){
-    int N=3000;
+    int N = 5;
     int ** graf = initializeGraf(N);
     struct timeval start, end;
+    int **short_dis = (int **)malloc(N * sizeof(int*));
+    for(int i = 0; i < N; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
 
     gettimeofday(&start, NULL);
 
+    for (int i=0; i<N; i++){
+        short_dis[i] = djikstra(graf, N, i);
+    }
     //printMatrix(graf, N);
 
-    printOutput(graf,N,"tes.txt");
-
     gettimeofday(&end, NULL);
+
+    printOutput(short_dis,N,"tes.txt");
 
     int exectime = ((end.tv_sec - start.tv_sec) *1000000) + (end.tv_usec - start.tv_usec);
     printf("Execution time : %d microseconds\n", exectime);
 
     freeMatrix(graf, N);
+    freeMatrix(short_dis, N);
     return 0;
 }
