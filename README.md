@@ -53,3 +53,6 @@ Serial :
 
 
 Paralel :
+
+## Analisis Perbandingan Kinerja
+Dari hasil pengukuran kinerja pada serial dan paralel dengan N = 100, 500, 1000, dan 3000, dapat dilihat bahwa waktu pengukuran hasil dari algoritma Dijkstra Paralel memiliki mayoritas waktu performa yang lebih kecil (lebih cepat). Terkecuali untuk kasus dimana N = 100, waktu hasil uji pada algoritma Dijkstra Serial dan algoritma Dijkstra Paralel kurang lebih mirip bahkan Dijkstra Paralel dapat memiliki waktu hasil uji yang lebih besar (lebih lama). Hal ini disebabkan oleh N yang terlalu kecil sehingga perbedaan waktu hasil uji antara algoritma paralel dan serial tidak terlihat secara signifikan karena diimbangi juga dengan overhead pembuatan thread dan penghancuran thread.
