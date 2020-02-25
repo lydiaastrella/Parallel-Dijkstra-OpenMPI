@@ -110,7 +110,8 @@ int main(int argc, char** argv){
     struct timeval start, end; 
     int *global_short_dis;
     int **graf;
-    //int **short_dis;
+    int **short_dis;
+    int *array_short_dis;
     int my_rank, num_of_process, node_per_process;
 
     MPI_Comm comm;
@@ -128,9 +129,10 @@ int main(int argc, char** argv){
    
     graf = initializeGraf(N);
 
-    //short_dis = (int **)malloc(node_per_process * sizeof(int*));
-    //for(int i = 0; i < node_per_process; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
-    int short_dis[10];
+    short_dis = (int **)malloc(node_per_process * sizeof(int*));
+    for(int i = 0; i < node_per_process; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
+
+    array_short_dis = (int *) malloc(node_per_process*N * sizeof(int));
 
     printf("%d\n",my_rank);
     if(my_rank==0){
@@ -141,9 +143,13 @@ int main(int argc, char** argv){
     for(int i_rank=0; i_rank < num_of_process; i_rank++){
         if(i_rank == my_rank){
             for (int i=0; i<node_per_process;i++){
-                //short_dis[i] = dijkstra(graf, N, my_rank*node_per_process + i);
-                short_dis[i] == i;
+                short_dis[i] = dijkstra(graf, N, my_rank*node_per_process + i);
                 printf("%d : short_dis[i]=%d\n",my_rank,short_dis[i][0]);
+            }
+            for (int i=0; i<node_per_process;i++){
+                for (int j=0; j<N; j++){
+                    array_short_dis[i*N+j] = short_dis[i][j];
+                }
             }
         }
     }
@@ -162,7 +168,7 @@ int main(int argc, char** argv){
         printf("beres inisialisasi global short dis\n");
         global_short_dis[0]=99;
         printf("%d\n",global_short_dis[0]);
-        MPI_Gather(short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
+        MPI_Gather(array_short_dis, node_per_process * N, MPI_INT, global_short_dis, node_per_process * N, MPI_INT, 0, comm);
         
         printf("beres gather 0\n");
 
@@ -175,11 +181,15 @@ int main(int argc, char** argv){
 
         free(global_short_dis);
     }else{
-        MPI_Gather(short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
+        MPI_Gather(array_short_dis, node_per_process * N, MPI_INT, global_short_dis, node_per_process * N, MPI_INT, 0, comm);
     }
 
     freeMatrix(graf, N);
+    for (int i=0; i<node_per_process; i++){
+        free(short_dis[i]);
+    }
     free(short_dis);
+    free(array_short_dis);
     MPI_Finalize();
     return 0;
 }
