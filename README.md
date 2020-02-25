@@ -1,3 +1,7 @@
+## Petunjuk Penggunaan Program
+
+Memanggil perintah 'make paralel' untuk program paralel dan 'make serial' untuk program serial. 
+
 ## Pembagian Tugas
 
 
@@ -22,3 +26,30 @@ Seharusnya terdapat kemungkinan masih ada solusi yang memberikan kinerja lebih b
 
 Thread yang digunakan sebanyak 5 karena asumsi yang kami gunakan adalah jumlah node sumber (N) harus merupakan kelipatan jumlah thread. Karena jumlah core maksimum adalah 6 dan yang memenuhi syarat kelipatan serta nilainya paling besar, maka nilai 5 dipilih sebagai jumlah thread yang digunakan.
 
+## Hasil Pengukuran kinerja tiap kasus uji
+
+### N = 100
+Serial :
+
+
+Paralel :
+
+
+### N = 500
+Serial :
+
+
+Paralel :
+
+
+### N = 1000
+Serial :
+
+
+Paralel :
+
+### N = 3000
+Serial :
+
+
+Paralel :
