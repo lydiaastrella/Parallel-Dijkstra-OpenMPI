@@ -1,12 +1,7 @@
-// inisialisasi graf
-// inisialisasi graf 3000 (besar)
-// djikstra
-// output txt
-// ukur waktu
-
 #include <stdio.h>
 #include <sys/time.h>
 #include <stdlib.h>
+#include <mpi.h>
 
 #define N_MAX 9999
 
@@ -78,7 +73,7 @@ int minDist(int* array, int* included, int N){
     return minIdx;
 }
 
-int* djikstra(int** graf, int N, int src){
+int* dijkstra(int** graf, int N, int src){
 
     int* shortestDist = (int*) malloc( N * sizeof(int));
     int* included =  (int*) malloc(N * sizeof(int));
@@ -110,28 +105,54 @@ int* djikstra(int** graf, int N, int src){
     }
 }
 
-int main(){
-    int N = 5;
-    int ** graf = initializeGraf(N);
-    struct timeval start, end;
-    int **short_dis = (int **)malloc(N * sizeof(int*));
-    for(int i = 0; i < N; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
+int main(int argc, char** argv){
+    int N;
+    struct timeval start, end; 
+    int **global_short_dis;
+    int *short_dis;
+    int my_rank, num_of_process, node_per_process;
 
-    gettimeofday(&start, NULL);
+    MPI_Comm comm;
 
-    for (int i=0; i<N; i++){
-        short_dis[i] = djikstra(graf, N, i);
+    MPI_Init(&argc,&argv);
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &num_of_process);
+    node_per_process = num_of_process / N;
+
+    N=100;
+    if(my_rank==0){
+        graf = initializeGraf(N);
+        MPI_Bcast(graf, N*N, MPI_INT, 0, comm);
     }
+   
+    short_dis = (int *)malloc(N * sizeof(int));
+
+    if(my_rank==0){
+        gettimeofday(&start, NULL);
+    }
+
+    short_dis = dijkstra(graf, N, i);
     //printMatrix(graf, N);
 
-    gettimeofday(&end, NULL);
+    if (my_rank==0){
+        global_short_dis = (int**)malloc(N * sizeof(int*));
+        for(int i = 0; i < N; i++) global_short_dis[i] = (int *)malloc(N * sizeof(int));
+        MPI_Gather(short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
+        
+        gettimeofday(&end, NULL);
 
-    printOutput(short_dis,N,"tes.txt");
+        printOutput(globalshort_dis,N,"tes.txt");
 
-    int exectime = ((end.tv_sec - start.tv_sec) *1000000) + (end.tv_usec - start.tv_usec);
-    printf("Execution time : %d microseconds\n", exectime);
+        int exectime = ((end.tv_sec - start.tv_sec) *1000000) + (end.tv_usec - start.tv_usec);
+        printf("Execution time : %d microseconds\n", exectime);
+
+        freeMatrix(global_short_dis, N);
+    }else{
+        MPI_Gather(short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0 comm);
+    }
 
     freeMatrix(graf, N);
-    freeMatrix(short_dis, N);
+    free(short_dis);
+    MPI_FINALIZE();
     return 0;
 }
