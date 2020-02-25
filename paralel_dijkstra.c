@@ -108,7 +108,8 @@ int* dijkstra(int** graf, int N, int src){
 int main(int argc, char** argv){
     int N;
     struct timeval start, end; 
-    int **global_short_dis, **graf;
+    int *global_short_dis;
+    int **graf;
     int **short_dis;
     int my_rank, num_of_process, node_per_process;
 
@@ -117,46 +118,62 @@ int main(int argc, char** argv){
     MPI_Init(&argc,&argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &num_of_process);
+    N=20;
     node_per_process = N/num_of_process; //asumsi N adalah kelipatan num_of_process
-
-    N=100;
-    if(my_rank==0){
+    
+    /*if(my_rank==0){
         graf = initializeGraf(N);
         MPI_Bcast(graf, N*N, MPI_INT, 0, comm);
-    }
+    }*/
    
-    short_dis = (int**)malloc(node_per_process * sizeof(int*));
-    for(int i = 0; i < node_per_process; i++) global_short_dis[i] = (int *)malloc(N * sizeof(int));
+    graf = initializeGraf(N);
 
+    short_dis = (int **)malloc(node_per_process * sizeof(int*));
+    for(int i = 0; i < node_per_process; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
+
+    printf("%d\n",my_rank);
     if(my_rank==0){
         gettimeofday(&start, NULL);
     }
 
+    printf("sebelum for djikstra\n");
     for(int i_rank=0; i_rank < num_of_process; i_rank++){
         if(i_rank == my_rank){
             for (int i=0; i<node_per_process;i++){
                 short_dis[i] = dijkstra(graf, N, my_rank*node_per_process + i);
+                printf("%d : short_dis[i]=%d\n",my_rank,short_dis[i][0]);
             }
         }
     }
+    printf("%d: selesai djisktra\n",my_rank);
 
     //printMatrix(graf, N);
 
     if (my_rank==0){
-        global_short_dis = (int**)malloc(N * sizeof(int*));
-        for(int i = 0; i < N; i++) global_short_dis[i] = (int *)malloc(N * sizeof(int));
-        MPI_Gather(short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
+        printf("masuk my_rank 0\n");
+        //short_dis = (int **)malloc(node_per_process * sizeof(int*));
+        //for(int i = 0; i < node_per_process; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
+
+        //global_short_dis = (int **)malloc(N * sizeof(int*));
+        //for(int i = 0; i < N; i++) global_short_dis[i] = (int *)malloc(N * sizeof(int));
+        global_short_dis = (int *)malloc(N * N * sizeof(int));
+        printf("beres inisialisasi global short dis\n");
+        global_short_dis[0]=99;
+        printf("%d\n",global_short_dis[0]);
+        MPI_Gather(&short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
         
+        printf("beres gather 0\n");
+
         gettimeofday(&end, NULL);
 
-        printOutput(global_short_dis,N,"tes.txt");
+        //printOutput(global_short_dis,N,"tes.txt");
 
         int exectime = ((end.tv_sec - start.tv_sec) *1000000) + (end.tv_usec - start.tv_usec);
         printf("Execution time : %d microseconds\n", exectime);
 
-        freeMatrix(global_short_dis, N);
+        free(global_short_dis);
     }else{
-        MPI_Gather(short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
+        MPI_Gather(&short_dis, N, MPI_INT, global_short_dis, N, MPI_INT, 0, comm);
     }
 
     freeMatrix(graf, N);
