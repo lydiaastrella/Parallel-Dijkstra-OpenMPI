@@ -106,8 +106,9 @@ int* dijkstra(int** graf, int N, int src){
 
 int main(){
     int N = 100;
-    int ** graf = initializeGraf(N);
+    int ** graf;
     struct timeval start, end;
+    graf = initializeGraf(N);
     int **short_dis = (int **)malloc(N * sizeof(int*));
     for(int i = 0; i < N; i++) short_dis[i] = (int *)malloc(N * sizeof(int));
 
@@ -129,3 +130,4 @@ int main(){
     freeMatrix(short_dis, N);
     return 0;
 }
+
