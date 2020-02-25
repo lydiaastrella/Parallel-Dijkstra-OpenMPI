@@ -33,7 +33,7 @@ void freeMatrix(int ** matrix, int N){
     }
 }
 
-void printOutput(int** matrix, int N, char* filename ){
+void printOutput(int* array, int N, char* filename ){
     FILE *out_file = fopen(filename, "w");
     if (out_file == NULL){
         printf("Error, Could not find file\n");
@@ -42,7 +42,7 @@ void printOutput(int** matrix, int N, char* filename ){
     for (int i=0; i<N; i++){
         fprintf(out_file, "jarak dari node %d: ", i);
         for(int j=0; j<N; j++){
-            fprintf(out_file, "%d ", matrix[i][j]);
+            fprintf(out_file, "%d ", array[i*N+j]);
         }
         fprintf(out_file,"\n");
     }
@@ -187,7 +187,7 @@ int main(int argc, char** argv){
     if(my_rank==0){
         gettimeofday(&end, NULL);
 
-        //printOutput(global_short_dis,N,"tes.txt");
+        printOutput(global_short_dis,N,"tes.txt");
 
         int exectime = ((end.tv_sec - start.tv_sec) *1000000) + (end.tv_usec - start.tv_usec);
         printf("Execution time : %d microseconds\n", exectime);
