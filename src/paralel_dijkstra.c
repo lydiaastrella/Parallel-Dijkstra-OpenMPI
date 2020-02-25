@@ -179,8 +179,8 @@ int main(int argc, char** argv){
         printf("beres inisialisasi global short dis\n");
     }
 
-    MPI_Barrier(comm);
-    MPI_Gather(array_short_dis, node_per_process * N, MPI_INT, global_short_dis, node_per_process * N, MPI_INT, 0, comm);
+    MPI_Barrier(MPI_COMM_WORLD);
+    MPI_Gather(array_short_dis, node_per_process * N, MPI_INT, global_short_dis, node_per_process * N, MPI_INT, 0, MPI_COMM_WORLD);
         
     printf("beres gather \n");
 
@@ -193,7 +193,7 @@ int main(int argc, char** argv){
         printf("Execution time : %d microseconds\n", exectime);
     }
 
-    MPI_Barrier(comm);
+    MPI_Barrier(MPI_COMM_WORLD);
     if(my_rank==0){
         free(global_short_dis);
     }
